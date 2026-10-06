@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "strictPropertyInitialization": false,
+    "paths": {
+      "@campus/shared": ["../../packages/shared/src/index.ts"]
+    }
+  },
+  "include": ["src/**/*", "../../packages/shared/src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}

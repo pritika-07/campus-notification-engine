@@ -1,0 +1,27 @@
+{
+  "name": "campus-notification-engine",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "dev:api": "npm run dev --workspace=@campus/api",
+    "dev:dashboard": "npm run dev --workspace=@campus/dashboard",
+    "dev": "concurrently -n api,dashboard -c blue,green \"npm:dev:api\" \"npm:dev:dashboard\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "typescript": "^5.4.5"
+  },
+  "allowScripts": {
+    "bcrypt@5.1.1": true,
+    "esbuild@0.21.5": true,
+    "msgpackr-extract@3.0.4": true,
+    "@nestjs/core@10.4.22": true
+  }
+}

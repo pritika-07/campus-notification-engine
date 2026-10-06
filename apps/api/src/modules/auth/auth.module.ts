@@ -1,0 +1,41 @@
+import { Module, Global } from '@nestjs/common';
+import { JwtModule } from '@nestjs/jwt';
+import { PassportModule } from '@nestjs/passport';
+import { APP_GUARD } from '@nestjs/core';
+import { AuthController } from './auth.controller';
+import { AuthService } from './auth.service';
+import { JwtStrategy } from './jwt.strategy';
+import { ApiKeyAuthGuard } from './guards/api-key-auth.guard';
+import { PermissionsGuard } from '../../common/guards/permissions.guard';
+import { UsersModule } from '../users/users.module';
+import { OrganizationsModule } from '../organizations/organizations.module';
+import { MembersModule } from '../members/members.module';
+import { EnvironmentsModule } from '../environments/environments.module';
+
+@Global()
+@Module({
+  imports: [
+    PassportModule,
+    JwtModule.register({
+      secret: process.env.JWT_SECRET || 'dev-secret-change-me',
+      signOptions: { expiresIn: '7d' },
+    }),
+    UsersModule,
+    OrganizationsModule,
+    MembersModule,
+    EnvironmentsModule,
+  ],
+  controllers: [AuthController],
+  providers: [
+    AuthService,
+    JwtStrategy,
+    ApiKeyAuthGuard,
+    PermissionsGuard,
+    {
+      provide: APP_GUARD,
+      useClass: PermissionsGuard,
+    },
+  ],
+  exports: [AuthService, JwtStrategy, ApiKeyAuthGuard, PermissionsGuard, JwtModule],
+})
+export class AuthModule {}
