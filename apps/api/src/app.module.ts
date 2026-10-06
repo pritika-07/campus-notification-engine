@@ -44,35 +44,47 @@ function bullConfig(): BullRootModuleOptions {
     };
   }
 
-  logger.log('BullMQ using ioredis-mock (in-memory)');
-  let mockClient: any = null;
+  logger.log('Redis unavailable — BullMQ configured in fail-fast mode (queues registered, workers idle)');
   try {
-    const RedisMock: any = require('ioredis-mock');
-    mockClient = new RedisMock({});
-    (mockClient as any).status = 'ready';
-    mockClient.on('connect', () => {});
-    mockClient.on('error', () => {});
-    mockClient.on('ready', () => {});
-  } catch (err) {
-    logger.warn(`ioredis-mock load failed (${(err as Error).message}); falling back to real Redis client`);
     const Redis: any = require('ioredis');
-    mockClient = new Redis({
-      host: process.env.REDIS_HOST || 'localhost',
+    const inertClient = new Redis({
+      host: process.env.REDIS_HOST || '127.0.0.1',
       port: Number(process.env.REDIS_PORT || 6379),
       password: process.env.REDIS_PASSWORD,
       db: Number(process.env.REDIS_DB || 0),
-      maxRetriesPerRequest: null,
+      maxRetriesPerRequest: 0,
+      enableReadyCheck: false,
+      lazyConnect: true,
+      enableOfflineQueue: false,
+      autoResubscribe: false,
+      autoResendUnfulfilledCommands: false,
+      reconnectOnError: () => false,
+      retryStrategy: () => null,
     });
+    inertClient.on('error', () => {});
+    return {
+      connection: inertClient,
+      defaultJobOptions: {
+        attempts: 1,
+        removeOnComplete: true,
+        removeOnFail: 5,
+      },
+    };
+  } catch (err) {
+    logger.warn(`ioredis load failed (${(err as Error).message}); falling back to minimal config`);
+    return {
+      connection: {
+        host: '127.0.0.1',
+        port: 6379,
+        maxRetriesPerRequest: 0,
+        enableReadyCheck: false,
+        lazyConnect: true,
+        reconnectOnError: () => false,
+        retryStrategy: () => null,
+      },
+      defaultJobOptions: { attempts: 1, removeOnComplete: true, removeOnFail: 5 },
+    };
   }
-  return {
-    connection: mockClient,
-    defaultJobOptions: {
-      attempts: 2,
-      removeOnComplete: true,
-      removeOnFail: 20,
-      backoff: { type: 'exponential', delay: 500 },
-    },
-  };
 }
 
 @Module({

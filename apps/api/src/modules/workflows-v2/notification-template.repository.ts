@@ -19,21 +19,21 @@ export class NotificationTemplateRepository {
   }
 
   async findById(id: string, session?: ClientSession): Promise<NotificationTemplateDocument | null> {
-    return this.model.findById(id).session(session || null).exec();
+    return this.model.findById(id).session(session ?? null).exec();
   }
 
   async find(
     filter: FilterQuery<NotificationTemplateDocument>,
     session?: ClientSession,
   ): Promise<NotificationTemplateDocument[]> {
-    return this.model.find(filter).session(session || null).exec();
+    return this.model.find(filter).session(session ?? null).exec();
   }
 
   async findOne(
     filter: FilterQuery<NotificationTemplateDocument>,
     session?: ClientSession,
   ): Promise<NotificationTemplateDocument | null> {
-    return this.model.findOne(filter).session(session || null).exec();
+    return this.model.findOne(filter).session(session ?? null).exec();
   }
 
   async findByTriggerIdentifier(
@@ -54,13 +54,13 @@ export class NotificationTemplateRepository {
     session?: ClientSession,
   ): Promise<NotificationTemplateDocument | null> {
     return this.model
-      .findByIdAndUpdate(id, update, { new: true, session: session || undefined })
+      .findByIdAndUpdate(id, update, { new: true, session: session ?? undefined })
       .exec();
   }
 
   async deleteById(id: string, session?: ClientSession): Promise<NotificationTemplateDocument | null> {
     return this.model
-      .findByIdAndUpdate(id, { deleted: true } as any, { new: true, session: session || undefined })
+      .findByIdAndUpdate(id, { deleted: true } as any, { new: true, session: session ?? undefined })
       .exec();
   }
 }

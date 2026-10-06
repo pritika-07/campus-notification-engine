@@ -22,14 +22,14 @@ export class ControlValuesRepository {
     filter: FilterQuery<ControlValuesDocument>,
     session?: ClientSession,
   ): Promise<ControlValuesDocument[]> {
-    return this.model.find(filter).session(session || null).exec();
+    return this.model.find(filter).session(session ?? null).exec();
   }
 
   async findOne(
     filter: FilterQuery<ControlValuesDocument>,
     session?: ClientSession,
   ): Promise<ControlValuesDocument | null> {
-    return this.model.findOne(filter).session(session || null).exec();
+    return this.model.findOne(filter).session(session ?? null).exec();
   }
 
   async bulkWrite(
@@ -42,13 +42,23 @@ export class ControlValuesRepository {
     }>,
     session?: ClientSession,
   ): Promise<any> {
-    return this.model.bulkWrite(operations, { session: session || undefined });
+    return this.model.bulkWrite(operations, { session: session ?? undefined });
+  }
+
+  async upsert(
+    filter: FilterQuery<ControlValuesDocument>,
+    update: UpdateQuery<ControlValuesDocument>,
+    session?: ClientSession,
+  ): Promise<ControlValuesDocument | null> {
+    return this.model
+      .findOneAndUpdate(filter, update, { upsert: true, new: true, session: session ?? undefined })
+      .exec();
   }
 
   async deleteMany(
     filter: FilterQuery<ControlValuesDocument>,
     session?: ClientSession,
   ): Promise<any> {
-    return this.model.deleteMany(filter).session(session || null).exec();
+    return this.model.deleteMany(filter).session(session ?? null).exec();
   }
 }

@@ -1,0 +1,7 @@
+{
+  "uri": "mongodb://127.0.0.1:50472/campus-notifications?replicaSet=rs0",
+  "dbName": "campus-notifications",
+  "replicaSet": "rs0",
+  "pid": 25196,
+  "startedAt": "2026-10-06T07:25:07.331Z"
+}

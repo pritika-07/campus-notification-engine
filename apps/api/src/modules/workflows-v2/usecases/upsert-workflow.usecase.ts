@@ -7,7 +7,7 @@ import { InjectConnection } from '@nestjs/mongoose';
 import { Connection, ClientSession, Types as MongooseTypes } from 'mongoose';
 import * as prettier from 'prettier';
 import { NotificationTemplateRepository } from '../notification-template.repository';
-import { ControlValuesRepository } from '../../workflows-v2/control-values.repository';
+import { ControlValuesRepository } from '../control-values.repository';
 import { UpsertWorkflowDto } from '../dtos/upsert-workflow.dto';
 import {
   NotificationTemplate,
@@ -159,13 +159,6 @@ export class UpsertWorkflowUseCase {
 
         if (dto.controlValues && dto.controlValues.length > 0) {
           const workflowId = template._id as MongooseTypes.ObjectId;
-          const bulkOps: Array<{
-            updateOne: {
-              filter: any;
-              update: any;
-              upsert?: boolean;
-            };
-          }> = [];
           for (const cv of dto.controlValues) {
             const stepExists = finalSteps.some((s) => s._id === cv._stepId);
             if (!stepExists) continue;
@@ -173,27 +166,18 @@ export class UpsertWorkflowUseCase {
               _workflowId: workflowId,
               _stepId: cv._stepId,
               _environmentId: new MongooseTypes.ObjectId(context._environmentId),
-              level: cv.level || DigestLevelEnum.STEP_CONTROLS,
+              level: cv.level ?? DigestLevelEnum.STEP_CONTROLS,
             };
             const update: Partial<ControlValues> = {
               _workflowId: workflowId,
               _stepId: cv._stepId,
               _environmentId: new MongooseTypes.ObjectId(context._environmentId),
               _organizationId: new MongooseTypes.ObjectId(context._organizationId),
-              level: cv.level || DigestLevelEnum.STEP_CONTROLS,
+              level: cv.level ?? DigestLevelEnum.STEP_CONTROLS,
               providerId: cv.providerId,
-              controls: cv.controls || {},
+              controls: cv.controls ?? {},
             };
-            bulkOps.push({
-              updateOne: {
-                filter,
-                update: { $set: update },
-                upsert: true,
-              },
-            });
-          }
-          if (bulkOps.length > 0) {
-            await this.controlValuesRepo.bulkWrite(bulkOps, session);
+            await this.controlValuesRepo.upsert(filter, { $set: update }, session);
           }
         }
 

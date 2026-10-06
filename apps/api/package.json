@@ -41,6 +41,7 @@
     "@types/babel__core": "^7.20.5",
     "@types/bcrypt": "^5.0.2",
     "@types/crypto-js": "^4.2.2",
+    "@types/jest": "^30.0.0",
     "@types/mongoose-delete": "^1.0.4",
     "@types/node": "^20.11.20",
     "@types/passport-jwt": "^4.0.1",
@@ -60,6 +61,9 @@
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
+    },
+    "moduleNameMapper": {
+      "^@campus/shared$": "<rootDir>/../../../packages/shared/src/index.ts"
     },
     "collectCoverageFrom": [
       "**/*.(t|j)s"
