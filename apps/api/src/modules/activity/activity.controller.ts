@@ -17,6 +17,7 @@ import { ExecutionDetailRepository } from '../execution-details/execution-detail
 import { MessageRepository } from '../messages/message.repository';
 import { SubscriberRepository } from '../subscribers/subscriber.repository';
 import { RequirePermissions } from '../../common/decorators/require-permissions.decorator';
+import { PermissionsGuard } from '../../common/guards/permissions.guard';
 import { PermissionsEnum, ChannelTypeEnum, ErrorCode } from '@campus/shared';
 import { MessageDocument } from '../messages/message.schema';
 
@@ -36,7 +37,7 @@ export class ActivityController {
   ) {}
 
   @Get('activity')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'), PermissionsGuard)
   @RequirePermissions(PermissionsEnum.NOTIFICATION_READ)
   async listActivity(@Request() req: any, @Query() query: any) {
     const limit = Math.min(Number(query.limit || 50), 200);
@@ -55,7 +56,7 @@ export class ActivityController {
   }
 
   @Sse('sse')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'), PermissionsGuard)
   sse(@Request() req: any): Observable<MessageEvent> {
     const subscriberId = req.user?.subscriberId || req.user?._id;
     const subject = new Subject<MessageEvent>();
@@ -107,7 +108,7 @@ export class ActivityController {
   }
 
   @Get('inbox')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'), PermissionsGuard)
   async getInbox(@Request() req: any, @Query() query: any) {
     const limit = Math.min(Number(query.limit || 30), 100);
     const skip = Number(query.skip || 0);
@@ -136,7 +137,7 @@ export class ActivityController {
   }
 
   @Post('messages/:id/seen')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'), PermissionsGuard)
   async markSeen(@Param('id') id: string) {
     const msg = await this.messageRepo.updateById(id, { $set: { seen: true } } as any);
     if (!msg) {
@@ -149,7 +150,7 @@ export class ActivityController {
   }
 
   @Post('messages/:id/read')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'), PermissionsGuard)
   async markRead(@Param('id') id: string) {
     const msg = await this.messageRepo.updateById(id, { $set: { read: true, seen: true } } as any);
     if (!msg) {
@@ -162,7 +163,7 @@ export class ActivityController {
   }
 
   @Post('messages/:id/archive')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'), PermissionsGuard)
   async archive(@Param('id') id: string) {
     const msg = await this.messageRepo.updateById(id, { $set: { archived: true } } as any);
     if (!msg) {

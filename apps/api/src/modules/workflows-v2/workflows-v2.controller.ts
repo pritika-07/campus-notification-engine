@@ -19,10 +19,11 @@ import { NotificationTemplateRepository } from './notification-template.reposito
 import { ControlValuesRepository } from './control-values.repository';
 import { UpsertWorkflowDto } from './dtos/upsert-workflow.dto';
 import { RequirePermissions } from '../../common/decorators/require-permissions.decorator';
+import { PermissionsGuard } from '../../common/guards/permissions.guard';
 import { PermissionsEnum, ErrorCode } from '@campus/shared';
 
 @Controller({ path: 'workflows', version: '2' })
-@UseGuards(AuthGuard('jwt'))
+@UseGuards(AuthGuard('jwt'), PermissionsGuard)
 export class WorkflowsV2Controller {
   constructor(
     private upsertUseCase: UpsertWorkflowUseCase,

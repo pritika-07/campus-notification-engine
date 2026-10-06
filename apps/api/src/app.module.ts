@@ -44,15 +44,61 @@ function bullConfig(): BullRootModuleOptions {
     };
   }
 
-  logger.log('BullMQ using ioredis-mock (in-memory)');
+  logger.log('BullMQ using ioredis-mock (in-memory, workers disabled)');
   let mockClient: any = null;
   try {
     const RedisMock: any = require('ioredis-mock');
+    const emptyResult = () => Promise.resolve([]);
+    const nilResult = () => Promise.resolve(null);
+    const zeroResult = () => Promise.resolve(0);
+    const okResult = () => Promise.resolve('OK');
+    const BLOCK_MS = 4000;
+    const blockingNil = () => new Promise<any>((resolve) => setTimeout(() => resolve(null), BLOCK_MS));
+    const stubPrototype: Record<string, () => Promise<any>> = {};
+    ['bzpopmin', 'bzpopmax', 'blpop', 'brpop', 'zmpop', 'bzmpop', 'lmove', 'blmove'].forEach((c) => { stubPrototype[c] = blockingNil; });
+    ['xreadgroup', 'xread', 'xclaim', 'xpending'].forEach((c) => { stubPrototype[c] = blockingNil; });
+    ['xadd', 'xtrim', 'xrange', 'xrevrange', 'xlen', 'xdel', 'xack', 'xinfo'].forEach((c) => { stubPrototype[c] = nilResult; });
+    ['set', 'hset', 'hmset', 'sadd', 'zadd', 'lpush', 'rpush', 'lrem', 'srem', 'zrem', 'del', 'unlink', 'expire', 'pexpire', 'hincrby', 'zincrby', 'hsetnx', 'setnx', 'psetex', 'setex'].forEach((c) => { stubPrototype[c] = okResult; });
+    ['exists', 'hlen', 'scard', 'zcard', 'llen', 'zcount', 'sismember', 'hexists'].forEach((c) => { stubPrototype[c] = zeroResult; });
+    Object.keys(stubPrototype).forEach((c) => { if (typeof RedisMock.prototype[c] !== 'function') RedisMock.prototype[c] = stubPrototype[c]; });
+    const noopScripts = [
+      'moveToActive', 'addJob', 'addToGroup', 'promoteJob',
+      'updateDelaySet', 'removeDelaySet', 'isZombie', 'cleanJobsInSet',
+      'decreaseGroupConcurrency', 'getGroup', 'getGroups', 'groupsRateLimit',
+      'markStep', 'storeAndGetDependencies', 'obliterate', 'retryJob',
+      'remove', 'repeat', 'paused', 'rateLimit', 'saveJob',
+    ];
+    noopScripts.forEach((n) => { RedisMock.prototype[n] = emptyResult; });
+    RedisMock.prototype.eval = RedisMock.prototype.EVAL = emptyResult;
+    RedisMock.prototype.evalsha = RedisMock.prototype.EVALSHA = emptyResult;
+    RedisMock.prototype.script = RedisMock.prototype.SCRIPT = () => Promise.resolve('OK');
     mockClient = new RedisMock({});
     (mockClient as any).status = 'ready';
     mockClient.on('connect', () => {});
     mockClient.on('error', () => {});
     mockClient.on('ready', () => {});
+    const sendKeys = ['sendCommand', 'send_command', 'call'];
+    let origFn: any = null;
+    for (const k of sendKeys) {
+      if (typeof mockClient[k] === 'function') {
+        origFn = mockClient[k].bind(mockClient);
+        mockClient[k] = function (...args: any[]) {
+          try {
+            const cmd = String(args[0]?.name || args[0] || '').toLowerCase();
+            if (cmd === 'eval' || cmd === 'evalsha' || cmd === 'script') return Promise.resolve([]);
+            return origFn.apply(mockClient, args);
+          } catch (e: any) {
+            if (/cmsgpack|lua|not.*support|unsupported command/i.test(String(e?.message || ''))) return Promise.resolve(null);
+            return Promise.resolve(null);
+          }
+        };
+        break;
+      }
+    }
+    (mockClient as any).defineCommand = (name: string) => { mockClient[name] = mockClient[name] || emptyResult; RedisMock.prototype[name] = RedisMock.prototype[name] || emptyResult; };
+    (mockClient as any).scriptsBuffer = mockClient;
+    RedisMock.prototype.defineCommand = (name: string) => { RedisMock.prototype[name] = RedisMock.prototype[name] || emptyResult; };
+    if (!mockClient.status) mockClient.status = 'ready';
   } catch (err) {
     logger.warn(`ioredis-mock load failed (${(err as Error).message}); falling back to real Redis client`);
     const Redis: any = require('ioredis');

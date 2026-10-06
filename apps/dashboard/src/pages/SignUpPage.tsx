@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 type FormValues = {
   firstName?: string;
   lastName?: string;
+  organizationName?: string;
   email: string;
   password: string;
 };
@@ -55,6 +56,10 @@ const SignUpPage: React.FC = () => {
                 <label className="label" htmlFor="lastName">Last name</label>
                 <input id="lastName" className="input" placeholder="Lovelace" {...register('lastName')} />
               </div>
+            </div>
+            <div>
+              <label className="label" htmlFor="organizationName">Organization</label>
+              <input id="organizationName" className="input" placeholder="My University" {...register('organizationName')} />
             </div>
             <div>
               <label className="label" htmlFor="email">Email</label>

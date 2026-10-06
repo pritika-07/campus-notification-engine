@@ -1,6 +1,7 @@
 import { Module, Global } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
@@ -16,9 +17,13 @@ import { EnvironmentsModule } from '../environments/environments.module';
 @Module({
   imports: [
     PassportModule,
-    JwtModule.register({
-      secret: process.env.JWT_SECRET || 'dev-secret-change-me',
-      signOptions: { expiresIn: '7d' },
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        secret: config.get<string>('JWT_SECRET', 'dev-secret-change-me'),
+        signOptions: { expiresIn: '7d' },
+      }),
     }),
     UsersModule,
     OrganizationsModule,
@@ -31,10 +36,6 @@ import { EnvironmentsModule } from '../environments/environments.module';
     JwtStrategy,
     ApiKeyAuthGuard,
     PermissionsGuard,
-    {
-      provide: APP_GUARD,
-      useClass: PermissionsGuard,
-    },
   ],
   exports: [AuthService, JwtStrategy, ApiKeyAuthGuard, PermissionsGuard, JwtModule],
 })

@@ -37,7 +37,7 @@ interface AuthContextValue {
   isAuthenticated: boolean;
   isLoading: boolean;
   signin: (email: string, password: string) => Promise<void>;
-  signup: (data: { email: string; password: string; firstName?: string; lastName?: string }) => Promise<void>;
+  signup: (data: { email: string; password: string; firstName?: string; lastName?: string; organizationName?: string }) => Promise<void>;
   signout: () => void;
   setEnvironmentId: (id: string) => void;
   hasPermission: (permission: PermissionsEnum | PermissionsEnum[]) => boolean;
@@ -113,7 +113,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [commitAuth]);
 
-  const signup = useCallback(async (payload: { email: string; password: string; firstName?: string; lastName?: string }) => {
+  const signup = useCallback(async (payload: { email: string; password: string; firstName?: string; lastName?: string; organizationName?: string }) => {
     setIsLoading(true);
     try {
       const { data } = await api.post<{ token: string; user: User }>('/auth/signup', payload);

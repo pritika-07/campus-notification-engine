@@ -136,6 +136,7 @@ export class DigestFlushWorker extends WorkerHost {
   }
 
   async process(job: Job<DigestFlushJobData>) {
+    if (process.env.__CAMPUS_INMEMORY_REDIS === '1') return { skipped: true, reason: 'inmemory_redis_mode' };
     const data = job.data;
     const redis = this.getRedis();
     const hashKey = `digest:${data.environmentId}:${data.workflowId}:${data.stepId}:${data.digestKey}:${data.subscriberId}`;

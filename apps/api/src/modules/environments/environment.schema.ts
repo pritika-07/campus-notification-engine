@@ -35,7 +35,7 @@ export class Environment {
   @Prop({
     type: [
       {
-        key: { type: String, required: true, unique: true, index: true },
+        key: { type: String, required: true },
         hash: { type: String, required: true },
         _userId: { type: MongooseSchema.Types.ObjectId, ref: 'User', required: true },
       },
@@ -49,3 +49,4 @@ export class Environment {
 export const EnvironmentSchema = SchemaFactory.createForClass(Environment);
 EnvironmentSchema.plugin(mongooseDelete, { deletedAt: true, overrideMethods: 'all' });
 EnvironmentSchema.index({ _organizationId: 1, type: 1 });
+EnvironmentSchema.index({ 'apiKeys.key': 1 }, { unique: true, sparse: true });

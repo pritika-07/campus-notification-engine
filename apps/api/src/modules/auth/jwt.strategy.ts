@@ -21,25 +21,40 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: { sub: string }) {
-    const member = await this.memberModel.findOne({ _userId: payload.sub }).sort({ createdAt: 1 }).exec();
-    if (!member) {
+    try {
+      const member =
+        (await (this.memberModel as any).findOneWithDeleted?.({ _userId: payload.sub })) ||
+        (await this.memberModel.findOne({ _userId: payload.sub }).sort({ createdAt: 1 }).exec());
+      if (!member) {
+        throw new UnauthorizedException({
+          error: ErrorCode.UNAUTHORIZED,
+          message: 'Invalid credentials',
+        });
+      }
+      const devEnv =
+        (await (this.environmentModel as any).findOneWithDeleted?.({
+          _organizationId: member._organizationId,
+          type: EnvironmentTypeEnum.DEV,
+        })) ||
+        (await this.environmentModel
+          .findOne({
+            _organizationId: member._organizationId,
+            type: EnvironmentTypeEnum.DEV,
+          })
+          .exec());
+      return {
+        _id: payload.sub,
+        _userId: payload.sub,
+        _organizationId: member._organizationId,
+        _environmentId: devEnv?._id || null,
+        roles: member.roles,
+      };
+    } catch (err: any) {
+      if (err instanceof UnauthorizedException) throw err;
       throw new UnauthorizedException({
         error: ErrorCode.UNAUTHORIZED,
         message: 'Invalid credentials',
       });
     }
-    const devEnv = await this.environmentModel
-      .findOne({
-        _organizationId: member._organizationId,
-        type: EnvironmentTypeEnum.DEV,
-      })
-      .exec();
-    return {
-      _id: payload.sub,
-      _userId: payload.sub,
-      _organizationId: member._organizationId,
-      _environmentId: devEnv?._id || null,
-      roles: member.roles,
-    };
   }
 }

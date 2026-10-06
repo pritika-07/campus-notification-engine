@@ -15,10 +15,11 @@ import { AuthGuard } from '@nestjs/passport';
 import { SubscriberRepository } from './subscriber.repository';
 import { UpsertSubscriberDto } from './dtos/upsert-subscriber.dto';
 import { RequirePermissions } from '../../common/decorators/require-permissions.decorator';
+import { PermissionsGuard } from '../../common/guards/permissions.guard';
 import { PermissionsEnum, ErrorCode } from '@campus/shared';
 
 @Controller({ path: 'subscribers', version: '2' })
-@UseGuards(AuthGuard('jwt'))
+@UseGuards(AuthGuard('jwt'), PermissionsGuard)
 export class SubscribersController {
   constructor(private subscriberRepo: SubscriberRepository) {}
 

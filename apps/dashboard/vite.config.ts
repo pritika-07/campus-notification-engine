@@ -19,6 +19,7 @@ export default defineConfig({
       '/auth': {
         target: 'http://localhost:3000',
         changeOrigin: true,
+        rewrite: (path: string) => `/v1${path}`,
       },
     },
   },

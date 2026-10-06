@@ -18,6 +18,7 @@ import { IntegrationRepository } from './integration.repository';
 import { AcademicCalendarRepository } from './academic-calendar.repository';
 import { UpsertIntegrationDto } from './dtos/integration.dto';
 import { RequirePermissions } from '../../common/decorators/require-permissions.decorator';
+import { PermissionsGuard } from '../../common/guards/permissions.guard';
 import {
   PermissionsEnum,
   ErrorCode,
@@ -26,7 +27,7 @@ import {
 import { encrypt, decrypt } from '../../common/helpers/crypto.helper';
 
 @Controller({ version: '1' })
-@UseGuards(AuthGuard('jwt'))
+@UseGuards(AuthGuard('jwt'), PermissionsGuard)
 export class IntegrationsController {
   constructor(
     private integrationRepo: IntegrationRepository,

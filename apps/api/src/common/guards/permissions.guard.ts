@@ -39,10 +39,15 @@ export class PermissionsGuard implements CanActivate {
       });
     }
 
-    const member = await this.memberModel.findOne({
-      _userId: userId,
-      _organizationId: organizationId,
-    });
+    const member =
+      (await (this.memberModel as any).findOneWithDeleted?.({
+        _userId: userId,
+        _organizationId: organizationId,
+      })) ||
+      (await this.memberModel.findOne({
+        _userId: userId,
+        _organizationId: organizationId,
+      }));
 
     if (!member) {
       throw new ForbiddenException({

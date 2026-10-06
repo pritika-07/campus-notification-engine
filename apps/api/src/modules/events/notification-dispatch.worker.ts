@@ -50,6 +50,7 @@ export class NotificationDispatchWorker extends WorkerHost {
   }
 
   async process(job: Job<NotificationJobPayload>) {
+    if (process.env.__CAMPUS_INMEMORY_REDIS === '1') return { skipped: true, reason: 'inmemory_redis_mode' };
     const data = job.data;
     this.logger.log(
       `Processing notification job: notification=${data.notificationId} channel=${data.channel} step=${data.stepIndex}`,
