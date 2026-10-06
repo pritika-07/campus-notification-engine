@@ -3,13 +3,11 @@
   "compilerOptions": {
     "outDir": "./dist",
     "baseUrl": "./",
+    "rootDir": "./src",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "strictPropertyInitialization": false,
-    "paths": {
-      "@campus/shared": ["../../packages/shared/src/index.ts"]
-    }
+    "strictPropertyInitialization": false
   },
-  "include": ["src/**/*", "../../packages/shared/src/**/*"],
+  "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
 }

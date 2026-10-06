@@ -37,7 +37,7 @@ interface AuthContextValue {
   isAuthenticated: boolean;
   isLoading: boolean;
   signin: (email: string, password: string) => Promise<void>;
-  signup: (data: { email: string; password: string; firstName?: string; lastName?: string }) => Promise<void>;
+  signup: (data: { email: string; password: string; firstName?: string; lastName?: string; organizationName?: string }) => Promise<void>;
   signout: () => void;
   setEnvironmentId: (id: string) => void;
   hasPermission: (permission: PermissionsEnum | PermissionsEnum[]) => boolean;

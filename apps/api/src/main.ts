@@ -15,8 +15,6 @@ async function bootstrap() {
     }),
   );
 
-  app.setGlobalPrefix('/v1');
-
   app.enableVersioning({
     type: VersioningType.URI,
     defaultVersion: '1',

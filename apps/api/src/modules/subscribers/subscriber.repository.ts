@@ -16,7 +16,7 @@ export class SubscriberRepository {
       if (err && err.code === 11000) {
         throw new ConflictException({
           error: ErrorCode.SUBSCRIBER_ALREADY_EXISTS,
-          message: 'Subscriber with this subscriberId already exists in this environment',
+          subscriberId: data.subscriberId,
         });
       }
       throw err;

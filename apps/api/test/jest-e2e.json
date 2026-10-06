@@ -1,0 +1,14 @@
+{
+  "moduleFileExtensions": ["js", "json", "ts"],
+  "rootDir": "..",
+  "testEnvironment": "node",
+  "testRegex": "test/.*\\.e2e-spec\\.ts$",
+  "transform": {
+    "^.+\\.(t|j)s$": "ts-jest"
+  },
+  "moduleNameMapper": {
+    "^@campus/shared$": "<rootDir>/../../packages/shared/src/index.ts"
+  },
+  "globalSetup": "<rootDir>/test/e2e-mongo-setup.js",
+  "globalTeardown": "<rootDir>/test/e2e-mongo-teardown.js"
+}

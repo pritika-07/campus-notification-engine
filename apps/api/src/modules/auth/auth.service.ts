@@ -40,7 +40,7 @@ export class AuthService {
         const existingUser = await this.userRepo.findByEmail(dto.email);
         if (existingUser) {
           throw new ConflictException({
-            error: ErrorCode.SUBSCRIBER_ALREADY_EXISTS,
+            error: ErrorCode.USER_ALREADY_EXISTS,
             message: 'Email already registered',
           });
         }
@@ -138,6 +138,7 @@ export class AuthService {
         firstName: result.user.firstName,
         lastName: result.user.lastName,
         email: result.user.email,
+        _environmentId: result.environments.dev.toString(),
         permissions: [
           'workflow:read',
           'workflow:write',

@@ -35,7 +35,7 @@ export class Environment {
   @Prop({
     type: [
       {
-        key: { type: String, required: true, unique: true, index: true },
+        key: { type: String, required: true, unique: true, sparse: true },
         hash: { type: String, required: true },
         _userId: { type: MongooseSchema.Types.ObjectId, ref: 'User', required: true },
       },

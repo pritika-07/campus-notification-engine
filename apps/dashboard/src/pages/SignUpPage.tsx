@@ -4,8 +4,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 type FormValues = {
-  firstName?: string;
-  lastName?: string;
+  firstName: string;
+  lastName: string;
+  organizationName: string;
   email: string;
   password: string;
 };
@@ -49,12 +50,19 @@ const SignUpPage: React.FC = () => {
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="label" htmlFor="firstName">First name</label>
-                <input id="firstName" className="input" placeholder="Ada" {...register('firstName')} />
+                <input id="firstName" className="input" placeholder="Ada" {...register('firstName', { required: 'First name is required' })} />
+                {errors.firstName && <p className="mt-1 text-xs text-rose-600">{errors.firstName.message}</p>}
               </div>
               <div>
                 <label className="label" htmlFor="lastName">Last name</label>
-                <input id="lastName" className="input" placeholder="Lovelace" {...register('lastName')} />
+                <input id="lastName" className="input" placeholder="Lovelace" {...register('lastName', { required: 'Last name is required' })} />
+                {errors.lastName && <p className="mt-1 text-xs text-rose-600">{errors.lastName.message}</p>}
               </div>
+            </div>
+            <div>
+              <label className="label" htmlFor="organizationName">Organization</label>
+              <input id="organizationName" className="input" placeholder="Acme University" {...register('organizationName', { required: 'Organization is required' })} />
+              {errors.organizationName && <p className="mt-1 text-xs text-rose-600">{errors.organizationName.message}</p>}
             </div>
             <div>
               <label className="label" htmlFor="email">Email</label>
@@ -63,7 +71,7 @@ const SignUpPage: React.FC = () => {
             </div>
             <div>
               <label className="label" htmlFor="password">Password</label>
-              <input id="password" type="password" className="input" placeholder="••••••••" {...register('password', { required: 'Password is required', minLength: { value: 6, message: 'Password must be at least 6 characters' } })} />
+              <input id="password" type="password" className="input" placeholder="••••••••" {...register('password', { required: 'Password is required', minLength: { value: 8, message: 'Password must be at least 8 characters' } })} />
               {errors.password && <p className="mt-1 text-xs text-rose-600">{errors.password.message}</p>}
             </div>
             <button type="submit" disabled={isLoading} className="btn-primary w-full">
